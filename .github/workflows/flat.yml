@@ -21,7 +21,7 @@ jobs:
         with:
           http_url: https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv
           downloaded_filename: owid.csv
-      - run: mkdir data
+      - run: mkdir -p data 
       - run: mv *.csv ./data/
       - uses: stefanzweifel/git-auto-commit-action@v4
         with: 
