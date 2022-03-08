@@ -1,52 +1,54 @@
 import React, { useEffect } from "react";
 import * as d3 from "d3";
 
+
 function ContinentGraphs() {
   var spacing = null;
 
   useEffect(() => {
-    var owid =
-      "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv";
+    var owid = "../../../data/owid.csv";
+    //"https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv";
 
-      var today = new Date();
-      var dd = String(today.getDate()).padStart(2, '0');
-      var mm = String(today.getMonth() + 1).padStart(2, '0'); 
-      var yyyy = today.getFullYear();
-          
-      today = yyyy + '-' + mm + '-' + (dd-1);
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var yyyy = today.getFullYear();
+
+    today = yyyy + '-' + mm + '-' + (dd - 1);
 
     totalC(owid, today, "C");
-    totalC(owid, today, "D")
+    totalC(owid, today, "D");
     owidCovidContinentC(owid);
     owidCovidContinentD(owid);
-}, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-function totalC(dat ,today, type){
-  let div = d3.select(".graphic").append("div").attr("width","200px").attr("margin","auto").attr("text-align", "center");
-  let d;
-  d3.csv(dat).then(function(data){
-      data = data.filter(function(d){return d.date == today});
-      data = data.filter(function(d){return d.continent != ""});
-      switch(type){
-          case("C"):
-              d = d3.rollup(data, v => d3.sum(v, d => d.total_cases), d => d.continent);
-          
-              data = unroll(d, ["continent"], "total_cases");
-              data = d3.sum(data, d => d.total_cases);
-          
-              div.append("span").text("CONFIRMED COVID CASES WORLDWIDE: ").append("span").text(data);;
+  function totalC(dat, today, type) {
+    let div = d3.select(".graphic").append("div").attr("width", "200px").attr("margin", "auto").attr("text-align", "center");
+    let d;
+    d3.csv(dat).then(function (data) {
+      data = data.filter(function (d) { return d.date == today; });
+      data = data.filter(function (d) { return d.continent != ""; });
+      switch (type) {
+        case ("C"):
+          d = d3.rollup(data, v => d3.sum(v, d => d.total_cases), d => d.continent);
+
+          data = unroll(d, ["continent"], "total_cases");
+          data = d3.sum(data, d => d.total_cases);
+
+          div.append("span").text("CONFIRMED COVID CASES WORLDWIDE: ").append("span").text(data);;
           break;
-          case("D"):
-              d = d3.rollup(data, v => d3.sum(v, d => d.total_deaths), d => d.continent);
-          
-              data = unroll(d, ["continent"], "total_deaths");
-              data = d3.sum(data, d => d.total_deaths);
-      
-              div.append("span").text("DEATHS DUE TO COVID WORLDWIDE: ").append("span").text(data);
+        case ("D"):
+          d = d3.rollup(data, v => d3.sum(v, d => d.total_deaths), d => d.continent);
+
+          data = unroll(d, ["continent"], "total_deaths");
+          data = d3.sum(data, d => d.total_deaths);
+
+          div.append("span").text("DEATHS DUE TO COVID WORLDWIDE: ").append("span").text(data);
           break;
       }
-  });
-}
+    });
+  }
 
   function owidCovidContinentC(dat) {
     var title = "COVID-19 cases by Continent",
@@ -94,7 +96,7 @@ function totalC(dat ,today, type){
         (d) => d.continent
       );
       data = unroll(d, ["continent"], "total_cases");
-      
+
       data = sortDescendingC(data);
 
       xscale.domain(
@@ -179,7 +181,7 @@ function totalC(dat ,today, type){
     var title = "Covid-19 Deaths by Continent",
       xtitle = "Continent",
       ytitle = "Deaths";
-      spacing = 0.4;
+    spacing = 0.4;
 
     var graphDiv = d3.select(".graphic").append("div");
 
@@ -222,7 +224,7 @@ function totalC(dat ,today, type){
         (d) => d.continent
       );
       data = unroll(d, ["continent"], "total_deaths");
-      
+
       data = sortDescendingD(data);
 
       xscale.domain(
@@ -303,13 +305,13 @@ function totalC(dat ,today, type){
     });
   }
 
-function sortDescendingC(data){
-    return data.sort(function(a,b) { return -a.total_cases - -b.total_cases});
+  function sortDescendingC(data) {
+    return data.sort(function (a, b) { return -a.total_cases - -b.total_cases; });
   }
-  
 
-function sortDescendingD(data){
-    return data.sort(function(a,b) { return -a.total_deaths - -b.total_deaths});
+
+  function sortDescendingD(data) {
+    return data.sort(function (a, b) { return -a.total_deaths - -b.total_deaths; });
   }
 
   //https://observablehq.com/@bayre/unrolling-a-d3-rollup
@@ -317,11 +319,11 @@ function sortDescendingD(data){
     return Array.from(rollup, ([key, value]) =>
       value instanceof Map
         ? unroll(
-            value,
-            keys.slice(1),
-            label,
-            Object.assign({}, { ...p, [keys[0]]: key })
-          )
+          value,
+          keys.slice(1),
+          label,
+          Object.assign({}, { ...p, [keys[0]]: key })
+        )
         : Object.assign({}, { ...p, [keys[0]]: key, [label]: value })
     ).flat();
   }
@@ -330,3 +332,4 @@ function sortDescendingD(data){
 }
 
 export default ContinentGraphs;
+

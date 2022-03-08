@@ -6,11 +6,11 @@ function USGraphs() {
   var spacing = null;
 
   useEffect(() => {
-    var owid =
-      "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv";
+    var owid = "owid.csv";
+    // "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv";
     var jhu =
       "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
-    var jhuUS = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/"
+    var jhuUS = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/";
 
     var parseDate = d3.timeParse("%Y-%m-%d");
 
@@ -22,17 +22,17 @@ function USGraphs() {
 
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
-    var mm = String(today.getMonth() + 1).padStart(2, '0'); 
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
     var yyyy = today.getFullYear();
-        
-    today = yyyy + '-' + mm + '-' + (dd-1);
+
+    today = yyyy + '-' + mm + '-' + (dd - 1);
 
     let country = "US";
     let location = "United States";
 
     jhuCovidCasesUS(jhuUS);
-    jhuTreeMap(jhu, "C", "#TreeMapConfirmed", country); 
-    jhuTreeMap(jhu, "D", "#TreeMapDeath", country); 
+    jhuTreeMap(jhu, "C", "#TreeMapConfirmed", country);
+    jhuTreeMap(jhu, "D", "#TreeMapDeath", country);
     owidCountryC(owid, location);
     owidCountryD(owid, location);
     owidCovidCountryMonthC(owid, parseDate, location);
@@ -41,28 +41,28 @@ function USGraphs() {
     totalCC(owid, location, today, "D");
   });
 
-  function totalCC(dat, country, today, type){
-    let div = d3.select(".graphic").select("#total").append("div").attr("width","200px").attr("margin","auto").attr("text-align", "center");
-    d3.csv(dat).then(function(data){
-      console.log("?")
-        data = data.filter(function(d){return d.date == today});
-        data = data.filter(function(d){return d.location == country});
-        switch(type){
-            case("C"):
-                data = d3.sum(data, d => d.total_cases);
-            
-                div.append("span").text("CONFIRMED: ").append("span").text(data);
-            break;
-            case("D"):
+  function totalCC(dat, country, today, type) {
+    let div = d3.select(".graphic").select("#total").append("div").attr("width", "200px").attr("margin", "auto").attr("text-align", "center");
+    d3.csv(dat).then(function (data) {
+      console.log("?");
+      data = data.filter(function (d) { return d.date == today; });
+      data = data.filter(function (d) { return d.location == country; });
+      switch (type) {
+        case ("C"):
+          data = d3.sum(data, d => d.total_cases);
 
-                data = d3.sum(data, d => d.total_deaths);
-                console.log(data);
-        
-                div.append("span").text("DEATHS: ").append("span").text(data);
-            break;
-        }
+          div.append("span").text("CONFIRMED: ").append("span").text(data);
+          break;
+        case ("D"):
+
+          data = d3.sum(data, d => d.total_deaths);
+          console.log(data);
+
+          div.append("span").text("DEATHS: ").append("span").text(data);
+          break;
+      }
     });
-}
+  }
 
   function owidCovidCountryMonthC(dat, parseDate, country) {
     var title = "COVID-19 Cases in " + country,
@@ -286,90 +286,91 @@ function USGraphs() {
     });
   }
 
-  function jhuCovidCasesUS(dat){
+  function jhuCovidCasesUS(dat) {
     var title = "COVID-19 in the U.S.",
-    xtitle = "State",
-    ytitle = "Confirmed",
-    spacing = 0.4;
+      xtitle = "State",
+      ytitle = "Confirmed",
+      spacing = 0.4;
 
     var div = d3.select(".graphic").select("#state");
 
     var graphDiv = div.append("div");
 
     var svg = graphDiv.append("svg").attr("width", "1000").attr("height", "500"),
-    margin = 225,
-    width = svg.attr("width") - (margin-100),
-    height = svg.attr("height") - (margin);
+      margin = 225,
+      width = svg.attr("width") - (margin - 100),
+      height = svg.attr("height") - (margin);
 
     //Title of Graph
     var title = svg.append("text")
-        .attr("transform", "translate(100,50)")
-        .attr("font-family", "Arial")
-        .attr("font-size", "24px")
-        .text(title);
+      .attr("transform", "translate(100,50)")
+      .attr("font-family", "Arial")
+      .attr("font-size", "24px")
+      .text(title);
 
     var g = svg.append("g")
-        .attr("transform", "translate(100,100)");
+      .attr("transform", "translate(100,100)");
 
-    var xscale = d3.scaleBand().range([0, width]).padding(spacing), 
-        yscale = d3.scaleLinear().range([height, 0]);
+    var xscale = d3.scaleBand().range([0, width]).padding(spacing),
+      yscale = d3.scaleLinear().range([height, 0]);
 
-    d3.csv(dat).then( function(data) {
+    d3.csv(dat).then(function (data) {
 
-        xscale.domain(data.map(function(d) { return d.Province_State; }));
-        yscale.domain([0, d3.max(data, function(d) { return +(d.Confirmed); })]);
+      xscale.domain(data.map(function (d) { return d.Province_State; }));
+      yscale.domain([0, d3.max(data, function (d) { return +(d.Confirmed); })]);
 
-        var xaxis = g.append("g")
-                    .attr("transform", "translate(0," + (height + 10) + ")")
-                    .call(d3.axisBottom(xscale))
-                    .selectAll("text")
-                    .style("text-anchor", "end")
-                    .attr("dx", "-.8em")
-                    .attr("dy", ".15em")
-                    .attr("transform","rotate(-65)");
-        
-        //X-Axis Title
-        g.append('text')
-            .attr("font-family", "Arial")
-            .attr("font-size", "12px")
-            .attr("x", (width - (30)))
-            .attr("y", height + 100)
-            .attr("stroke", "black")
-            .text(xtitle);
-        
-        var yaxis = g.append("g")
-                    .call(d3.axisLeft(yscale).tickFormat(function(d){return d;}).ticks(10))
-                    .append("text")
-                    .attr("font-family", "Arial")
-                    .attr("font-size", "12px")
-                    .attr("stroke", "black")
-                    .attr("transform", "rotate(-90)")
-                    .attr("y", 10)
-                    .attr('dy', '-5em')
-                    .attr('text-anchor', 'end');
+      var xaxis = g.append("g")
+        .attr("transform", "translate(0," + (height + 10) + ")")
+        .call(d3.axisBottom(xscale))
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");
 
-        //Y-Axis Title
-        g.append('text')
-            .attr("font-family", "Arial")
-            .attr("font-size", "12px")
-            .attr("x", ((margin * -1) + 170))
-            .attr("y", "-65")
-            .attr("stroke", "black")
-            .text(ytitle)
-            .attr("transform","rotate(-90)");
+      //X-Axis Title
+      g.append('text')
+        .attr("font-family", "Arial")
+        .attr("font-size", "12px")
+        .attr("x", (width - (30)))
+        .attr("y", height + 100)
+        .attr("stroke", "black")
+        .text(xtitle);
 
-        g.selectAll(".bar")
-            .data(data)
-            .enter().append("rect")
-            .attr("fill", "#ff6361")
-            .attr("x", function(d) {return xscale(d.Province_State); })
-            .attr("y", function(d)  {return yscale(d.Confirmed); }) 
-            .attr("width", xscale.bandwidth())
-            .attr("height", function(d){ 
-                return height - yscale(d.Confirmed); });
+      var yaxis = g.append("g")
+        .call(d3.axisLeft(yscale).tickFormat(function (d) { return d; }).ticks(10))
+        .append("text")
+        .attr("font-family", "Arial")
+        .attr("font-size", "12px")
+        .attr("stroke", "black")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 10)
+        .attr('dy', '-5em')
+        .attr('text-anchor', 'end');
 
+      //Y-Axis Title
+      g.append('text')
+        .attr("font-family", "Arial")
+        .attr("font-size", "12px")
+        .attr("x", ((margin * -1) + 170))
+        .attr("y", "-65")
+        .attr("stroke", "black")
+        .text(ytitle)
+        .attr("transform", "rotate(-90)");
+
+      g.selectAll(".bar")
+        .data(data)
+        .enter().append("rect")
+        .attr("fill", "#ff6361")
+        .attr("x", function (d) { return xscale(d.Province_State); })
+        .attr("y", function (d) { return yscale(d.Confirmed); })
+        .attr("width", xscale.bandwidth())
+        .attr("height", function (d) {
+          return height - yscale(d.Confirmed);
         });
-    }
+
+    });
+  }
 
   function jhuTreeMap(dat, type, div, country) {
     // set the dimensions and margins of the graph
@@ -382,11 +383,11 @@ function USGraphs() {
     var div = d3.select("#treemap");
 
     let title = div
-    .append("h2")
-    .attr("width", "100px")
-    .attr("display", "block")
-    .attr("margin", "auto")
-    .attr("stroke", "black")
+      .append("h2")
+      .attr("width", "100px")
+      .attr("display", "block")
+      .attr("margin", "auto")
+      .attr("stroke", "black");
 
     var svg = div
       .append("svg")
@@ -450,9 +451,9 @@ function USGraphs() {
         .parentId(function (d) {
           return d.parent;
         })(
-        //parent
-        data
-      );
+          //parent
+          data
+        );
 
       root.sum(function (d) {
         return +d.value;
@@ -734,11 +735,11 @@ function USGraphs() {
     return Array.from(rollup, ([key, value]) =>
       value instanceof Map
         ? unroll(
-            value,
-            keys.slice(1),
-            label,
-            Object.assign({}, { ...p, [keys[0]]: key })
-          )
+          value,
+          keys.slice(1),
+          label,
+          Object.assign({}, { ...p, [keys[0]]: key })
+        )
         : Object.assign({}, { ...p, [keys[0]]: key, [label]: value })
     ).flat();
   }
@@ -795,15 +796,15 @@ function USGraphs() {
   }
 
   return (
-  <div className="graphic">
-    <div id="total"></div>
-    <div id="state"></div>
-    <div id="treemap">
-      <div id="TreeMapConfirmed"></div>
-      <div id="TreeMapDeath"></div>
-    </div>
-    <div id="linegraph"></div>
-  </div>);
+    <div className="graphic">
+      <div id="total"></div>
+      <div id="state"></div>
+      <div id="treemap">
+        <div id="TreeMapConfirmed"></div>
+        <div id="TreeMapDeath"></div>
+      </div>
+      <div id="linegraph"></div>
+    </div>);
 }
 
 export default USGraphs;
