@@ -1,5 +1,5 @@
 name: data
-on:_
+on:
   schedule:
     - cron: '* * * * *'
   workflow_dispatch: {}
