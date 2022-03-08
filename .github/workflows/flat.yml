@@ -1,5 +1,5 @@
 name: data
-on:
+on:_
   schedule:
     - cron: '* * * * *'
   workflow_dispatch: {}
@@ -21,5 +21,11 @@ jobs:
         with:
           http_url: https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv
           downloaded_filename: owid.csv
-  run: mkdir data
-  run: mv *.csv ./data/ 
+      - run: mkdir data
+      - run: mv *.csv ./data/
+      - uses: stefanzwiefel/git-auto-commit-action@v4
+        with: 
+          commit_message: "[Bot] Update csv files."
+          commit_user_name: JakeSchultz
+          commit_user_email: jmschultz93@hotmail.com
+          commit_author: JakeSchultz <jmschultz93@hotmail.com> 
