@@ -23,7 +23,7 @@ jobs:
           downloaded_filename: owid.csv
       - run: mkdir data
       - run: mv *.csv ./data/
-      - uses: stefanzwiefel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v4
         with: 
           commit_message: "[Bot] Update csv files."
           commit_user_name: JakeSchultz
